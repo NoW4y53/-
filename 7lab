@@ -1,0 +1,83 @@
+# 1
+def info():
+    from PIL import Image
+    image = Image.open("cat.jpeg")
+    image.show()
+    width, height = image.size
+    image_format = image.format
+    color_mode = image.mode
+    print("Размер изображения: {}x{}".format(width, height))
+    print("Формат изображения:", image_format)
+    print("Цветовая модель:", color_mode)
+
+# 2
+def decrease():
+    from PIL import Image
+    def resize_image(image_path, scale_factor):
+        image = Image.open(image_path)
+        new_width = int(image.width / scale_factor)
+        new_height = int(image.height / scale_factor)
+        resized_image = image.resize((new_width, new_height))
+        resized_image.save("resized_" + image_path)
+    def mirror_image(image_path):
+        image = Image.open(image_path)
+        mirrored_horizontal = image.transpose(Image.FLIP_LEFT_RIGHT)
+        mirrored_horizontal.save("mirrored_horizontal_" + image_path)
+        mirrored_vertical = image.transpose(Image.FLIP_TOP_BOTTOM)
+        mirrored_vertical.save("mirrored_vertical_" + image_path)
+    image_path = "cat.jpeg"
+    resize_image(image_path, 3)
+    mirror_image(image_path)
+# 3
+from PIL import Image, ImageFilter
+import os
+
+def fillter():
+    def apply_filter(image_path, filter_name, output_folder):
+        image = Image.open(image_path)
+        filtered_image = image.convert(filter_name)
+        output_path = os.path.join(output_folder, os.path.basename(image_path))
+        filtered_image.save(output_path)
+
+    input_folder = "input_images"
+    output_folder = "output_images"
+
+    if not os.path.exists(output_folder):
+        os.makedirs(output_folder)
+
+    for filename in os.listdir(input_folder):
+        if filename.endswith(".jpg"):
+            image_path = os.path.join(input_folder, filename)
+            apply_filter(image_path, "L", output_folder)
+
+# 4
+def watermarkadd():
+    from PIL import Image
+    import os
+
+    def add_watermark(image_path, watermark_path, output_folder):
+        image = Image.open(image_path)
+        watermark = Image.open(watermark_path)
+        image_width, image_height = image.size
+        watermark_width, watermark_height = watermark.size
+        scale_factor = min(image_width / 3 / watermark_width, image_height / 3 / watermark_height)
+        new_width = int(watermark_width * scale_factor)
+        new_height = int(watermark_height * scale_factor)
+        watermark_resized = watermark.resize((new_width, new_height))
+        position = ((image_width - new_width) // 2, (image_height - new_height) // 2)
+        image.paste(watermark_resized, position, watermark_resized)
+        output_path = os.path.join(output_folder, os.path.basename(image_path))
+        image.save(output_path)
+
+    input_folder = "input_images"
+    watermark_path = "watermark.png"
+    output_folder = "output_images"
+
+    if not os.path.exists(output_folder):
+        os.makedirs(output_folder)
+
+    for filename in os.listdir(input_folder):
+        if filename.endswith(".jpg"):
+            image_path = os.path.join(input_folder, filename)
+            add_watermark(image_path, watermark_path, output_folder)
+print(watermarkadd())
